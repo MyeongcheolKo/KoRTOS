@@ -1,12 +1,12 @@
 /*
- * I2C_driver.h
+ * I2C.h
  *
  *  Created on: Dec 30, 2025
  *      Author: krisko
  */
 
-#ifndef DRIVERS_I2C_DRIVER_H_
-#define DRIVERS_I2C_DRIVER_H_
+#ifndef KORTOS_HAL_STM32F446XX_I2C_H_
+#define KORTOS_HAL_STM32F446XX_I2C_H_
 
 #include "STM32F446xx.h"
 #include "rcc.h"
@@ -143,4 +143,4 @@ __attribute__((weak)) void I2C_event_callback(I2C_Handle_t *p_I2C_Handle, uint8_
 
 
 
-#endif /* DRIVERS_I2C_DRIVER_H_ */
+#endif /* KORTOS_HAL_STM32F446XX_I2C_H_ */

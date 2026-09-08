@@ -1,12 +1,12 @@
 /*
- * USART_driver.h
+ * USART.h
  *
  *  Created on: Jan 3, 2026
  *      Author: krisko
  */
 
-#ifndef DRIVERS_USART_DRIVER_H_
-#define DRIVERS_USART_DRIVER_H_
+#ifndef KORTOS_HAL_STM32F446XX_USART_H_
+#define KORTOS_HAL_STM32F446XX_USART_H_
 
 #include "STM32F446xx.h"
 #include "rcc.h"
@@ -150,4 +150,4 @@ void USART_close_receive(USART_Handle_t *p_USART_Handle);
  */
 __attribute__((weak)) void USART_event_callback(USART_Handle_t *p_USART_Handle, uint8_t event);
 
-#endif /* DRIVERS_USART_DRIVER_H_ */
+#endif /* KORTOS_HAL_STM32F446XX_USART_H_ */

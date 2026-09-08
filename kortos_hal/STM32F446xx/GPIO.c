@@ -1,10 +1,10 @@
 /*
- * STM32F446xx_GPIO_driver.c
+ * GPIO.c
  *
  *  Created on: Dec 26, 2025
  *      Author: krisko
  */
-#include "GPIO_driver.h"
+#include "GPIO.h"
 
 
 /*

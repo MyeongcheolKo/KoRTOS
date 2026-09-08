@@ -1,14 +1,15 @@
 /*
- * I2C_controller_send_receive.c
+ * I2C_interrupt_send_receive.c
  *
- *  Created on: Dec 31, 2025
+ *  Created on: Jan 2, 2026
  *      Author: krisko
  */
 
 
+
 #include <string.h>
 #include <stdio.h>
-#include "drivers.h"
+#include "kortos_hal.h"
 
 /*
  * This sample application have STM32F446RE (controller) sending a code(0x67) to Arduino Uno (target) by I2C and Arduino sends back a
@@ -30,6 +31,7 @@
 #define TARGET_ADDR 		0x68
 
 I2C_Handle_t I2C1_Handle;
+volatile uint8_t rx_complete;
 
 void I2C_GPIO_inits(void)
 {
@@ -42,6 +44,7 @@ void I2C_GPIO_inits(void)
 	I2C_pins.GPIO_config.GPIO_pin_out_type = GPIO_OUT_TYPE_OD;
 	I2C_pins.GPIO_config.GPIO_pin_speed = GPIO_OUT_SPEED_FAST;
 	I2C_pins.GPIO_config.GPIO_pin_pupd = GPIO_PIN_PU;
+
 
 	//SCL
 	I2C_pins.GPIO_config.GPIO_pin_num = GPIO_PIN_NO_8;
@@ -89,6 +92,9 @@ int main(void)
 	GPIO_button_init();
 	//configure the I2C1 parameters
 	I2C1_inits();
+	//configure I2C1 IRQ
+	I2C_IRQ_config(IRQ_NO_I2C1_EV, ENABLE);
+	I2C_IRQ_config(IRQ_NO_I2C1_ER, ENABLE);
 	//enable I2C1
 	I2C_periph_control(&I2C1_Handle, ENABLE);
 
@@ -102,23 +108,58 @@ int main(void)
 
 		//get length information from target
 		command_code = 0x67;
-		I2C_controller_send(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE);
-		I2C_controller_receive(&I2C1_Handle, &len, 1, TARGET_ADDR, I2C_RS_ENABLE);
-		printf("Receiving message of length: %d\n", len);
+		while( I2C_controller_send_IT(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
+		while( I2C_controller_receive_IT(&I2C1_Handle, &len, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
 
 		//get the message from target
 		command_code = 0x76;
-		I2C_controller_send(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE);
-		I2C_controller_receive(&I2C1_Handle, received_mssg, len, TARGET_ADDR, I2C_RS_DISABLE);
+		while( I2C_controller_send_IT(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
+		while( I2C_controller_receive_IT(&I2C1_Handle, received_mssg, len, TARGET_ADDR, I2C_RS_DISABLE) != I2C_STATE_READY);
+
+		rx_complete = RESET;		//the first reception sets rx_complete to SET
+
+		while(rx_complete != SET);	//wait until second reception completes
 
 		received_mssg[len] = '\0';
 
 		printf("Received data: %s\n", received_mssg);
+
+		rx_complete = RESET;
 	}
-
-
-
 
 	return 0;
 }
 
+void I2C1_EV_IRQHandler(void)
+{
+	I2C_EV_IRQ_handling(&I2C1_Handle);
+}
+
+void I2C1_ER_IRQHandler(void)
+{
+	I2C_ER_IRQ_handling(&I2C1_Handle);
+}
+
+void I2C_event_callback(I2C_Handle_t *p_I2C_Handle, uint8_t event)
+{
+	if(event == I2C_EV_TX_CMPLT)
+	{
+		printf("Tx completed\n");
+	}
+	else if (event == I2C_EV_RX_CMPLT)
+	{
+		printf("Rx completed\n");
+		rx_complete = SET;
+	}
+	else if (event == I2C_ER_AF)
+	{
+		printf("ERROR: ACK failure\n");
+
+		//close sending data
+		I2C_close_send(&I2C1_Handle);
+		//generate stop condition
+		I2C_generate_stop(&I2C1_Handle);
+		//application hangs here if ACK failure occurs
+		while(1);
+	}
+}

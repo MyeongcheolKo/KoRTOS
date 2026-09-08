@@ -1,11 +1,11 @@
 /*
- * SPI_driver.c
+ * SPI.c
  *
  *  Created on: Dec 28, 2025
  *      Author: krisko
  */
 
-#include "SPI_driver.h"
+#include "SPI.h"
 
 /*
  * helper functions for the driver, should not be called by user applications

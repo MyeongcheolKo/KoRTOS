@@ -1,16 +1,19 @@
 /*
- * I2C_controller_send_arduino.c
+ * I2C_controller_send_receive.c
  *
  *  Created on: Dec 31, 2025
  *      Author: krisko
  */
 
+
 #include <string.h>
-#include "drivers.h"
+#include <stdio.h>
+#include "kortos_hal.h"
 
 /*
- * This sample application have STM32F446RE (controller) sending message to Arduino Uno (target) by I2C when the
- * on board button on STM32F446RE is pressed.
+ * This sample application have STM32F446RE (controller) sending a code(0x67) to Arduino Uno (target) by I2C and Arduino sends back a
+ * response to confirm the message length. Then controller sends another code(0x76) to Arduino, and Arduino sends the actual message
+ * to STM32F446RE. STM32F446RE receives the the message and reads it into a buffer.
  *
  * pins used:
  * PB6 - I2C1_SCL
@@ -24,7 +27,7 @@
  */
 
 #define BUTTON_PRESSED 	0
-#define TARGET_ADDR 		0x69
+#define TARGET_ADDR 		0x68
 
 I2C_Handle_t I2C1_Handle;
 
@@ -78,6 +81,8 @@ void I2C1_inits(void)
 
 int main(void)
 {
+	setvbuf(stdout, NULL, _IONBF, 0); //disable buffering
+	printf("Application started\n");
 	//initialize the GPIO pins to behave as I2C1 pins
 	I2C_GPIO_inits();
 	//initialize the B1 button
@@ -88,16 +93,29 @@ int main(void)
 	I2C_periph_control(&I2C1_Handle, ENABLE);
 
 
-	uint8_t send_data[] = "Testing I2C controller send\n";
-	uint8_t len = strlen((char*)send_data);
+	uint8_t received_mssg[32], len, command_code;
 	while(1)
 	{
 		while(GPIO_read_input_pin(GPIOC, GPIO_PIN_NO_13));
 		delay();
 
-		//send data to target
-		I2C_controller_send(&I2C1_Handle, send_data, len, TARGET_ADDR, I2C_RS_DISABLE);
+
+		//get length information from target
+		command_code = 0x67;
+		I2C_controller_send(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE);
+		I2C_controller_receive(&I2C1_Handle, &len, 1, TARGET_ADDR, I2C_RS_ENABLE);
+		printf("Receiving message of length: %d\n", len);
+
+		//get the message from target
+		command_code = 0x76;
+		I2C_controller_send(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE);
+		I2C_controller_receive(&I2C1_Handle, received_mssg, len, TARGET_ADDR, I2C_RS_DISABLE);
+
+		received_mssg[len] = '\0';
+
+		printf("Received data: %s\n", received_mssg);
 	}
+
 
 
 

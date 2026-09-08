@@ -1,11 +1,11 @@
 /*
- * USART_driver.c
+ * USART.c
  *
  *  Created on: Jan 3, 2026
  *      Author: krisko
  */
 
-#include "USART_driver.h"
+#include "USART.h"
 
 /*
  * @func:			USART_clock_control

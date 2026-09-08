@@ -1,11 +1,11 @@
 /*
- * I2C_driver.c
+ * I2C.c
  *
  *  Created on: Dec 30, 2025
  *      Author: krisko
  */
 
-#include "I2C_driver.h"
+#include "I2C.h"
 //private helper functions
 static void I2C_generate_start(I2C_Handle_t *p_I2C_Handle);
 static void I2C_execute_addr_phase(I2C_Handle_t *p_I2C_Handle, uint8_t target_addr, uint8_t read_or_write);

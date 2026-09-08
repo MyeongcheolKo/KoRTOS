@@ -1,17 +1,14 @@
 /*
- * SPI_send_recieve_arduino.c
+ * SPI_transmit_arduino.c
  *
  *  Created on: Dec 29, 2025
  *      Author: krisko
  */
-
 #include <string.h>
-#include "drivers.h"
+#include "kortos_hal.h"
 
 /*
- * This sample application have STM32F446RE (Master) sending a command byte (67) to Arduino Uno (Slave), and
- * Arduino responds with 0xF5 as acknowledgement if it verifies it receives 67, the correct command.
- * STM32 then blinks LD2 LED if it receives the valid acknowledgement (0xF5).
+ * This sample application transmits a message to Arduino Uno using SPI driver when B1 button on STM32F446RE is pressed
  *
  * pins used:
  * PB15 - SPI2_MOSI
@@ -25,9 +22,8 @@
  * PB15 (SPI2_MOSI) - arduino pin 11
  * PB13 (SPI2_SCLK) - arduino pin 13
  * PB12 (SPI2_NSS) - arduino pin 10
- * PB14 (SPI2_MISO) - arduino pin 12
  * STm32 GND - arduino GND
-
+ * PB14 (SPI2_MISO) not connected
  *
  * note: use a logic level converter to avoid data corruption due to VOH and VIH mismatch
  */
@@ -51,8 +47,8 @@ void SPI_GPIO_inits(void)
 	GPIO_init(&SPI_pins);
 
 	//MISO
-	SPI_pins.GPIO_config.GPIO_pin_num = 14;
-	GPIO_init(&SPI_pins);
+//	SPI_pins.GPIO_config.GPIO_pin_num = 14;
+//	GPIO_init(&SPI_pins);
 
 	//SCLK
 	SPI_pins.GPIO_config.GPIO_pin_num = 13;
@@ -109,15 +105,6 @@ void SPI2_inits(void)
 	SPI_init(&SPI2_handle);
 }
 
-uint8_t SPI_verify_response(uint8_t ack_byte)
-{
-	if(ack_byte == 0xF5)
-	{
-		return 1;
-	}
-	return 0;
-}
-
 int main(void)
 {
 	//initialize the GPIO pins to behave as SPI2 pins
@@ -132,44 +119,37 @@ int main(void)
 	SPI_SSOE_config(SPI2, ENABLE);
 
 
-	uint8_t send_data = 67;
-	uint8_t dummy_byte;
-	uint8_t response;
+	char send_data[] = "Testing SPI send";
+	uint8_t data_len = strlen(send_data);
 
 	while(1)
 	{
 		// Wait for button press
 		while(GPIO_read_input_pin(GPIOC, GPIO_PIN_NO_13) != BUTTON_PRESSED);
-		delay();  // avoid debounce
+		delay();  // avoid debounce press
 
+		//toggle LED
+		GPIO_toggle_output_pin(GPIOA, GPIO_PIN_NO_5);
 
 		//enable SPI2
 		SPI_periph_control(SPI2, ENABLE);
 
+		//first send the length
+		SPI_send(SPI2, &data_len, 1);
+		while( SPI_get_flag_status(SPI2, SPI_SR_BSY) );
+
 		//send data
-		SPI_send(SPI2, &send_data, 1);
+		SPI_send(SPI2, (uint8_t*)send_data, data_len);
+
+		//wait until last byte is transmitted successfully, that is BSY bits turns 0
 		while( SPI_get_flag_status(SPI2, SPI_SR_BSY) );
 
-		//read the Rx buffer to clear RXNE, to avoid data lost
-		SPI_recieve(SPI2, &dummy_byte, 1);
-		//send some dummy byte to fetch the response from the slave
-		dummy_byte = 0xFF;
-		SPI_send(SPI2, &dummy_byte, 1);
-		while( SPI_get_flag_status(SPI2, SPI_SR_BSY) );
-
-		//read the response
-		SPI_recieve(SPI2, &response, 1);
-
-		//check response
-		if(SPI_verify_response(response)){
-			//toggle LED
-			GPIO_toggle_output_pin(GPIOA, GPIO_PIN_NO_5);
-			delay();
-			GPIO_toggle_output_pin(GPIOA, GPIO_PIN_NO_5);
-		}
 		//disable SPI2 so NSS is pulled to 1
 		SPI_periph_control(SPI2, DISABLE);
 
+		//toggle LED
+		GPIO_toggle_output_pin(GPIOA, GPIO_PIN_NO_5);
+		delay();
 	}
 
 	return 0;

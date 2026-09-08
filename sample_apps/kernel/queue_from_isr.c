@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 #include "kortos.h"
-#include "GPIO_driver.h"
+#include "GPIO.h"
 
 #if !defined(__SOFT_FP__) && defined(__ARM_FP)
 #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."

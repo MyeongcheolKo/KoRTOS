@@ -1,12 +1,12 @@
 /*
- * GPIO_driver.h
+ * GPIO.h
  *
  *  Created on: Dec 26, 2025
  *      Author: krisko
  */
 
-#ifndef DRIVERS_GPIO_DRIVER_H_
-#define DRIVERS_GPIO_DRIVER_H_
+#ifndef KORTOS_HAL_STM32F446XX_GPIO_H_
+#define KORTOS_HAL_STM32F446XX_GPIO_H_
 
 #include "STM32F446xx.h"
 
@@ -31,6 +31,16 @@ typedef struct
 	GPIO_reg_t *p_GPIOx; 			//!<the specific GPIO port base address specified by the user
 	GPIO_pin_config_t GPIO_config; 	//!< the GPIO configuration settings specified by user
 }GPIO_Handle_t;
+
+// macro to convert GPIOx to value
+#define GPIO_BASEADDR_TO_CODE(x)   ((x == GPIOA) ? 0 :\
+									(x == GPIOB) ? 1 :\
+									(x == GPIOC) ? 2 :\
+									(x == GPIOD) ? 3 :\
+									(x == GPIOE) ? 4 :\
+									(x == GPIOF) ? 5 :\
+									(x == GPIOG) ? 6 :\
+									(x == GPIOH) ? 7 :0)
 
 /*
  * @GPIO_PIN_NUMBERS
@@ -91,7 +101,6 @@ typedef struct
 #define GPIO_PIN_PD			2	//pull down
 
 
-
 /**************************APIs**************************/
 
 /*
@@ -127,4 +136,4 @@ void GPIO_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority);
 void GPIO_IRQ_handler(uint8_t pin_num);
 
 
-#endif /* DRIVERS_GPIO_DRIVER_H_ */
+#endif /* KORTOS_HAL_STM32F446XX_GPIO_H_ */

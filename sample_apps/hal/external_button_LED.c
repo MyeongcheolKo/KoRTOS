@@ -5,7 +5,7 @@
  *      Author: krisko
  */
 
-#include "GPIO_driver.h"
+#include "GPIO.h"
 
 #define BUTTON_PRESSED 0
 
@@ -32,27 +32,21 @@ int main(void)
 	//button configuration
 	GPIO_button.p_GPIOx = GPIOB; 	//button is connected to PB5
 	GPIO_button.GPIO_config.GPIO_pin_num = GPIO_PIN_NO_5;
-	GPIO_button.GPIO_config.GPIO_pin_mode = GPIO_MODE_IT_FT;	//falling edge trigger
+	GPIO_button.GPIO_config.GPIO_pin_mode = GPIO_MODE_IN;
 	GPIO_button.GPIO_config.GPIO_pin_pupd = GPIO_PIN_PU;
 	GPIO_clock_control(GPIO_button.p_GPIOx, ENABLE);
 	GPIO_init(&GPIO_button);
 
-	//interrupt configs
-	GPIO_set_priority(IRQ_NO_EXTI9_5, 10);
-	//enable the corresponding EXTI
-	GPIO_IRQ_config(IRQ_NO_EXTI9_5, ENABLE); 	// button is PB5 so EXTI5
 
 	while(1){
+		if (GPIO_read_input_pin(GPIO_button.p_GPIOx, GPIO_button.GPIO_config.GPIO_pin_num) == BUTTON_PRESSED)
+		{
+			delay();
+			GPIO_toggle_output_pin(GPIO_led.p_GPIOx, GPIO_led.GPIO_config.GPIO_pin_num);
+		}
+
 	}
 	return 0;
-}
-
-void EXTI9_5_IRQHandler(void)
-{
-	delay();
-	GPIO_toggle_output_pin(GPIOA, GPIO_PIN_NO_10);
-	GPIO_IRQ_handler(GPIO_PIN_NO_5);
-
 }
 
 void delay(void)

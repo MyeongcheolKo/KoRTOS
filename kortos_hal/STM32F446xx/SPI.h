@@ -1,12 +1,12 @@
 /*
- * SPI_driver.h
+ * SPI.h
  *
  *  Created on: Dec 28, 2025
  *      Author: krisko
  */
 
-#ifndef DRIVERS_SPI_DRIVER_H_
-#define DRIVERS_SPI_DRIVER_H_
+#ifndef KORTOS_HAL_STM32F446XX_SPI_H_
+#define KORTOS_HAL_STM32F446XX_SPI_H_
 
 #include <stdint.h>
 #include "STM32F446xx.h"
@@ -158,4 +158,4 @@ void SPI_close_reception(SPI_Handle_t *p_SPI_Handle);
 __attribute__((weak)) void SPI_event_callback(SPI_Handle_t *p_SPI_Handle, uint8_t event);
 
 
-#endif /* DRIVERS_SPI_DRIVER_H_ */
+#endif /* KORTOS_HAL_STM32F446XX_SPI_H_ */
