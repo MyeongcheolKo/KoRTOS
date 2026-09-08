@@ -49,7 +49,7 @@ typedef struct
 
 /*
  * @SPI_BUS_CONFIGS
- * note: for simplex Rx only(recieve only), just use full-duplex mode and disconnect the MISO line
+ * note: for simplex Rx only(receive only), just use full-duplex mode and disconnect the MISO line
  */
 #define SPI_BUS_CONFIG_FD 			0		//full-duplex
 #define SPI_BUS_CONFIG_HD 			1		//half-duplex
@@ -126,13 +126,13 @@ void SPI_deinit(SPI_reg_t *p_SPIx);
  * send and receive
  */
 void SPI_send(SPI_reg_t *p_SPIx, uint8_t *p_Tx_buffer, uint32_t len);
-void SPI_recieve(SPI_reg_t *p_SPIx, uint8_t *p_Rx_buffer, uint32_t len);
+void SPI_receive(SPI_reg_t *p_SPIx, uint8_t *p_Rx_buffer, uint32_t len);
 
 /*
  * interrupt based send and receive
  */
 uint8_t SPI_send_IT(SPI_Handle_t *p_SPI_Handle, uint8_t *p_Tx_buffer, uint32_t len);
-uint8_t SPI_recieve_IT(SPI_Handle_t *p_SPI_Handle, uint8_t *p_Rx_buffer, uint32_t len);
+uint8_t SPI_receive_IT(SPI_Handle_t *p_SPI_Handle, uint8_t *p_Rx_buffer, uint32_t len);
 
 /*
  * IQR configuration and handling

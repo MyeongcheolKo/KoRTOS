@@ -7,15 +7,11 @@
 
 #include "USART.h"
 
-/*
- * @func:			USART_clock_control
+/**
+ * @brief		This function enable/disable the clock for the given USART peripheral
  *
- * @brief:			This function enable/disable the clock for the given USART peripheral
- *
- * @param[in]:		address of USART peripheral
- * @param[in]:		ENABLE or DISABLE
- *
- * @return:			none
+ * @param		p_USARTx address of USART peripheral
+ * @param		enable ENABLE or DISABLE
  */
 void USART_clock_control(USART_reg_t *p_USARTx, uint8_t enable)
 {
@@ -74,14 +70,10 @@ void USART_clock_control(USART_reg_t *p_USARTx, uint8_t enable)
 	}
 }
 
-/*
- * @func:			USART_init
+/**
+ * @brief		This function configures the given USART peripheral
  *
- * @brief:			This function configures the given USART peripheral
- *
- * @param[in]:		address of the Handle structure of the USART peripheral
- *
- * @return:			none
+ * @param		p_USART_Handle address of the Handle structure of the USART peripheral
  */
 void USART_init(USART_Handle_t *p_USART_Handle)
 {
@@ -242,14 +234,10 @@ void USART_init(USART_Handle_t *p_USART_Handle)
 
 }
 
-/*
- * @func:			USART_deinit
+/**
+ * @brief		This function disables the clock of the given USART peripheral
  *
- * @brief:			This function disables the clock of the given USART peripheral
- *
- * @param[in]:		address of the USART peripheral
- *
- * @return:			none
+ * @param		p_USARTx address of the USART peripheral
  */
 void USART_deinit(USART_reg_t *p_USARTx){
 	if(p_USARTx == USART1)
@@ -278,16 +266,12 @@ void USART_deinit(USART_reg_t *p_USARTx){
 	}
 }
 
-/*
- * @func:				USART_send
+/**
+ * @brief		This function sends the given length of data in the given Tx buffer to the USART peripheral
  *
- * @brief:				This function sends the given length of data in the given Tx buffer to the USART peripheral
- *
- * @param[in]:			the USART peripheral to send data to
- * @param[in]:			address of Tx buffer storing the data to send
- * @param[in]:			length of data to send
- *
- * @return: 			none
+ * @param		p_USART_Handle the USART peripheral to send data to
+ * @param		p_Tx_buffer address of Tx buffer storing the data to send
+ * @param		len length of data to send
  */
 void USART_send(USART_Handle_t *p_USART_Handle, uint8_t *p_Tx_buffer, uint32_t len)
 {
@@ -333,16 +317,12 @@ void USART_send(USART_Handle_t *p_USART_Handle, uint8_t *p_Tx_buffer, uint32_t l
 	while(USART_get_flag_status(p_USART_Handle->p_USARTx, USART_SR_TC) == 0);
 }
 
-/*
- * @func:				USART_receive
+/**
+ * @brief		This function receives the given length of data to the given Rx buffer from the USART peripheral
  *
- * @brief:				This function receives the given length of data to the given Rx buffer from the USART peripheral
- *
- * @param[in]:			the USART peripheral to receive data from
- * @param[in]:			address of Rx buffer storing the data received
- * @param[in]:			length of data to receive
- *
- * @return: 			none
+ * @param		p_USART_Handle the USART peripheral to receive data from
+ * @param		p_Rx_buffer address of Rx buffer storing the data received
+ * @param		len length of data to receive
  */
 void USART_receive(USART_Handle_t *p_USART_Handle, uint8_t *p_Rx_buffer, uint32_t len)
 {
@@ -387,16 +367,12 @@ void USART_receive(USART_Handle_t *p_USART_Handle, uint8_t *p_Rx_buffer, uint32_
 	}
 }
 
-/*
- * @func:				USART_send_IT
+/**
+ * @brief		This function starts the transmission process and enables the interrupts
  *
- * @brief:				This function starts the transmission process and enables the interrupts
- *
- * @param[in]:			the USART peripheral to send data to
- * @param[in]:			address of Tx buffer storing the data to send
- * @param[in]:			length of data to send
- *
- * @return: 			none
+ * @param		p_USART_Handle the USART peripheral to send data to
+ * @param		p_Tx_buffer address of Tx buffer storing the data to send
+ * @param		len length of data to send
  */
 uint8_t USART_send_IT(USART_Handle_t *p_USART_Handle, uint8_t *p_Tx_buffer, uint32_t len)
 {
@@ -418,16 +394,12 @@ uint8_t USART_send_IT(USART_Handle_t *p_USART_Handle, uint8_t *p_Tx_buffer, uint
 	return tx_state;
 }
 
-/*
- * @func:				USART_receive_IT
+/**
+ * @brief		This function starts the reception process and enables the interrupts
  *
- * @brief:				This function starts the reception process and enables the interrupts
- *
- * @param[in]:			the USART peripheral to receive data from
- * @param[in]:			address of Rx buffer storing the data received
- * @param[in]:			length of data to receive
- *
- * @return: 			none
+ * @param		p_USART_Handle the USART peripheral to receive data from
+ * @param		p_Rx_buffer address of Rx buffer storing the data received
+ * @param		len length of data to receive
  */
 uint8_t USART_receive_IT(USART_Handle_t *p_USART_Handle, uint8_t *p_Rx_buffer, uint32_t len)
 {
@@ -446,15 +418,11 @@ uint8_t USART_receive_IT(USART_Handle_t *p_USART_Handle, uint8_t *p_Rx_buffer, u
 	return rx_state;
 }
 
-/*
- * @func:				USART_IRQ_config
+/**
+ * @brief		This function enable/disable interrupt for the given peripheral
  *
- * @brief:				This function enable/disable interrupt for the given peripheral
- *
- * @param[in]:			the IRQ number to enable/disable
- * @param[in]:			ENABLE or DISABLE the IRQ
- *
- * @return: 			none
+ * @param		IRQ_num the IRQ number to enable/disable
+ * @param		enable ENABLE or DISABLE the IRQ
  */
 void USART_IRQ_config(uint8_t IRQ_num, uint8_t enable)
 {
@@ -504,15 +472,11 @@ void USART_IRQ_config(uint8_t IRQ_num, uint8_t enable)
 
 }
 
-/*
- * @func:			USART_set_priority
+/**
+ * @brief		This function enable/disable the GPIO pin as given
  *
- * @brief:			This function enable/disable the GPIO pin as given
- *
- * @param[in]:			IRQ number of the peripheral to set priority
- * @param[in]:			priority value to set the IRQ to
- *
- * @return: 		none
+ * @param		IRQ_num IRQ number of the peripheral to set priority
+ * @param		IRQ_priority priority value to set the IRQ to
  */
 void USART_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority)
 {
@@ -525,6 +489,12 @@ void USART_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority)
 }
 
 
+/**
+ * @brief		This function identifies the interrupt source (TC, TXE, RXNE, or error flags) and
+ * 				handles data transmission/reception or notifies the user application accordingly
+ *
+ * @param		p_USART_Handle address of the USART Handle structure
+ */
 void USART_IRQ_handling(USART_Handle_t *p_USART_Handle)
 {
 	uint32_t temp1, temp2, temp3;
@@ -761,17 +731,13 @@ void USART_IRQ_handling(USART_Handle_t *p_USART_Handle)
 	(void)dummy_byte;
 }
 
-/*
- * @func:		USART_periph_control
+/**
+ * @brief		This function enables the given USART peripheral and the ACK bit as configured
  *
- * @brief:		This function enables the given USART peripheral and the ACK bit as configured
+ * @param		p_USART_Handle address of the USART peripheral
+ * @param		enable ENABLE or DISABLE
  *
- * @param[in]:	address of the USART peripheral
- * @param[in]:	ENABLE or DISABLE
- *
- * @return:		none
- *
- * @note:		should be called after USART_init (after configuration is done)
+ * @note		should be called after USART_init (after configuration is done)
  */
 void USART_periph_control(USART_Handle_t *p_USART_Handle, uint8_t enable)
 {
@@ -784,16 +750,14 @@ void USART_periph_control(USART_Handle_t *p_USART_Handle, uint8_t enable)
 	}
 }
 
-/*
- * @func:			get_flag_status
+/**
+ * @brief		This function returns the status of the given flag bit of the USART status register(SR)
  *
- * @brief:			This function returns the status of the given flag bit of the USART status register(SR)
+ * @param		p_USARTx base address of the USART device
+ * @param		flag_bit which SR register to read (1 or 2)
+ * @param		the flag bit of the SR register to get status from
  *
- * @param[in]:		base address of the USART device
- * @param[in]:		which SR register to read (1 or 2)
- * @param[in]:		the flag bit of the SR register to get status from
- *
- * @return:			the status of the given flag bit
+ * @return		the status of the given flag bit
  */
 uint8_t USART_get_flag_status(USART_reg_t *p_USARTx, uint8_t flag_bit)
 {

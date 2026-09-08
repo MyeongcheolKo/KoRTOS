@@ -34,7 +34,7 @@ typedef struct
 	uint32_t		Tx_len;
 	uint32_t 		Rx_len;				//remaining bytes to receive
 	uint8_t 		TxRxstate;
-	uint8_t 		target_addr;
+	uint8_t 		slave_addr;
 	uint32_t 		Rx_size;			//total bytes to receive
 	uint8_t 		repeated_start;
 }I2C_Handle_t;
@@ -106,17 +106,17 @@ void I2C_deinit(I2C_reg_t *p_I2Cx);
 /*
  * send and receive
  */
-void I2C_controller_send(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Tx_buffer, uint32_t len, uint8_t target_addr, uint8_t RS_enable);
-void I2C_controller_receive(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Rx_buffer, uint32_t len, uint8_t target_addr, uint8_t RS_enable);
-void I2C_target_send(I2C_reg_t *p_I2Cx, uint8_t data);
-uint8_t I2C_target_receive(I2C_reg_t *p_I2Cx);
+void I2C_master_send(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Tx_buffer, uint32_t len, uint8_t slave_addr, uint8_t RS_enable);
+void I2C_master_receive(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Rx_buffer, uint32_t len, uint8_t slave_addr, uint8_t RS_enable);
+void I2C_slave_send(I2C_reg_t *p_I2Cx, uint8_t data);
+uint8_t I2C_slave_receive(I2C_reg_t *p_I2Cx);
 
 
 /*
  * Interrupt based send and receive
  */
-uint8_t I2C_controller_send_IT(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Tx_buffer, uint32_t len, uint8_t target_addr, uint8_t RS_enable);
-uint8_t I2C_controller_receive_IT(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Rx_buffer, uint32_t len, uint8_t target_addr, uint8_t RS_enable);
+uint8_t I2C_master_send_IT(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Tx_buffer, uint32_t len, uint8_t slave_addr, uint8_t RS_enable);
+uint8_t I2C_master_receive_IT(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Rx_buffer, uint32_t len, uint8_t slave_addr, uint8_t RS_enable);
 
 /*
  * IQR configuration and handling

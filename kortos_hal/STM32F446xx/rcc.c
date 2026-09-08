@@ -7,14 +7,12 @@
 
 #include <stdint.h>
 #include "rcc.h"
-/*
- * @func:			RCC_get_pclk1
+/**
+ * @brief		This function calculates the clock speed of APB1
  *
- * @brief:			This function calculates the clock speed of APB1
+ * @return		APB1 clock speed
  *
- * @return:			APB1 clock speed
- *
- * @note:			only HSI and HSE are considered for system clock source, PLL is not considered
+ * @note		only HSI and HSE are considered for system clock source, PLL is not considered
  */
 uint32_t RCC_get_pclk1(void)
 {
@@ -52,14 +50,12 @@ uint32_t RCC_get_pclk1(void)
 	return (system_clk / AHB_pscal) / APB1_pscal;
 }
 
-/*
- * @func:			RCC_get_pclk1
+/**
+ * @brief		This function calculates the clock speed of APB2
  *
- * @brief:			This function calculates the clock speed of APB2
+ * @return		APB2 clock speed
  *
- * @return:			APB2 clock speed
- *
- * @note:			only HSI and HSE are considered for system clock source, PLL is not considered
+ * @note		only HSI and HSE are considered for system clock source, PLL is not considered
  */
 uint32_t RCC_get_pclk2(void)
 {

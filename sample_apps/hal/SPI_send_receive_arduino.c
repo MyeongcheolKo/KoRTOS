@@ -1,5 +1,5 @@
 /*
- * SPI_send_recieve_arduino.c
+ * SPI_send_receive_arduino.c
  *
  *  Created on: Dec 29, 2025
  *      Author: krisko
@@ -151,14 +151,14 @@ int main(void)
 		while( SPI_get_flag_status(SPI2, SPI_SR_BSY) );
 
 		//read the Rx buffer to clear RXNE, to avoid data lost
-		SPI_recieve(SPI2, &dummy_byte, 1);
+		SPI_receive(SPI2, &dummy_byte, 1);
 		//send some dummy byte to fetch the response from the slave
 		dummy_byte = 0xFF;
 		SPI_send(SPI2, &dummy_byte, 1);
 		while( SPI_get_flag_status(SPI2, SPI_SR_BSY) );
 
 		//read the response
-		SPI_recieve(SPI2, &response, 1);
+		SPI_receive(SPI2, &response, 1);
 
 		//check response
 		if(SPI_verify_response(response)){

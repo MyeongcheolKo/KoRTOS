@@ -1,5 +1,5 @@
 /*
- * I2C_controller_send_arduino.c
+ * I2C_master_send_arduino.c
  *
  *  Created on: Dec 31, 2025
  *      Author: krisko
@@ -9,7 +9,7 @@
 #include "kortos_hal.h"
 
 /*
- * This sample application have STM32F446RE (controller) sending message to Arduino Uno (target) by I2C when the
+ * This sample application have STM32F446RE (master) sending message to Arduino Uno (slave) by I2C when the
  * on board button on STM32F446RE is pressed.
  *
  * pins used:
@@ -24,7 +24,7 @@
  */
 
 #define BUTTON_PRESSED 	0
-#define TARGET_ADDR 		0x69
+#define SLAVE_ADDR 		0x69
 
 I2C_Handle_t I2C1_Handle;
 
@@ -88,15 +88,15 @@ int main(void)
 	I2C_periph_control(&I2C1_Handle, ENABLE);
 
 
-	uint8_t send_data[] = "Testing I2C controller send\n";
+	uint8_t send_data[] = "Testing I2C master send\n";
 	uint8_t len = strlen((char*)send_data);
 	while(1)
 	{
 		while(GPIO_read_input_pin(GPIOC, GPIO_PIN_NO_13));
 		delay();
 
-		//send data to target
-		I2C_controller_send(&I2C1_Handle, send_data, len, TARGET_ADDR, I2C_RS_DISABLE);
+		//send data to slave
+		I2C_master_send(&I2C1_Handle, send_data, len, SLAVE_ADDR, I2C_RS_DISABLE);
 	}
 
 

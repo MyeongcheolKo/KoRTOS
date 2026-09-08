@@ -12,8 +12,8 @@
 #include "kortos_hal.h"
 
 /*
- * This sample application have STM32F446RE (controller) sending a code(0x67) to Arduino Uno (target) by I2C and Arduino sends back a
- * response to confirm the message length. Then controller sends another code(0x76) to Arduino, and Arduino sends the actual message
+ * This sample application have STM32F446RE (master) sending a code(0x67) to Arduino Uno (slave) by I2C and Arduino sends back a
+ * response to confirm the message length. Then master sends another code(0x76) to Arduino, and Arduino sends the actual message
  * to STM32F446RE. STM32F446RE receives the the message and reads it into a buffer.
  *
  * pins used:
@@ -28,7 +28,7 @@
  */
 
 #define BUTTON_PRESSED 	0
-#define TARGET_ADDR 		0x68
+#define SLAVE_ADDR 		0x68
 
 I2C_Handle_t I2C1_Handle;
 volatile uint8_t rx_complete;
@@ -106,15 +106,15 @@ int main(void)
 		delay();
 
 
-		//get length information from target
+		//get length information from slave
 		command_code = 0x67;
-		while( I2C_controller_send_IT(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
-		while( I2C_controller_receive_IT(&I2C1_Handle, &len, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
+		while( I2C_master_send_IT(&I2C1_Handle, &command_code, 1, SLAVE_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
+		while( I2C_master_receive_IT(&I2C1_Handle, &len, 1, SLAVE_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
 
-		//get the message from target
+		//get the message from slave
 		command_code = 0x76;
-		while( I2C_controller_send_IT(&I2C1_Handle, &command_code, 1, TARGET_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
-		while( I2C_controller_receive_IT(&I2C1_Handle, received_mssg, len, TARGET_ADDR, I2C_RS_DISABLE) != I2C_STATE_READY);
+		while( I2C_master_send_IT(&I2C1_Handle, &command_code, 1, SLAVE_ADDR, I2C_RS_ENABLE) != I2C_STATE_READY);
+		while( I2C_master_receive_IT(&I2C1_Handle, received_mssg, len, SLAVE_ADDR, I2C_RS_DISABLE) != I2C_STATE_READY);
 
 		rx_complete = RESET;		//the first reception sets rx_complete to SET
 

@@ -7,15 +7,11 @@
 #include "GPIO.h"
 
 
-/*
- * @func:			GPIO_clock_control
+/**
+ * @brief		This function enables or disables the peripheral clock for the given GPIO port
  *
- * @brief:			This function enables or disables the peripheral clock for the given GPIO port
- *
- * @param[in]:		base address of GPIO peripheral
- * @param[in]:		ENABLE or DISABLE macros
- *
- * @return: 		none
+ * @param		p_GPIOx base address of GPIO peripheral
+ * @param		enable ENABLE or DISABLE macros
  */
 void GPIO_clock_control(GPIO_reg_t *p_GPIOx, uint8_t enable)
 {
@@ -83,16 +79,12 @@ void GPIO_clock_control(GPIO_reg_t *p_GPIOx, uint8_t enable)
 	}
 }
 
-/*
- * @func:			GPIO_init
+/**
+ * @brief		This function initialize the given GPIO port
  *
- * @brief:			This function initialize the given GPIO port
+ * @param		p_GPIO_Handle address of GPIO Handle
  *
- * @param[in]:		address of GPIO Handle
- *
- * @return: 		none
- *
- * @note: 			this function enables the peripheral clock
+ * @note		this function enables the peripheral clock
  */
 void GPIO_init(GPIO_Handle_t *p_GPIO_Handle)
 {
@@ -185,14 +177,10 @@ void GPIO_init(GPIO_Handle_t *p_GPIO_Handle)
 		temp = 0;
 	}
 }
-/*
- * @func:			GPIO_deinit
+/**
+ * @brief		This function resets all registers of the given GPIO port
  *
- * @brief:			This function resets all registers of the given GPIO port
- *
- * @param[in]:		base address of GPIO port registers
- *
- * @return: 		none
+ * @param		p_GPIOx base address of GPIO port registers
  */
 void GPIO_deinit(GPIO_reg_t *p_GPIOx)
 {
@@ -227,44 +215,36 @@ void GPIO_deinit(GPIO_reg_t *p_GPIOx)
 	}
 }
 
-/*
- * @func:			GPIO_read_input_pin
+/**
+ * @brief		This function reads the input value of the given GPIO pin
  *
- * @brief:			This function reads the input value of the given GPIO pin
+ * @param		p_GPIOx base address of GPIO port registers
+ * @param		pin_num the specific pin number to read
  *
- * @param[in]:		base address of GPIO port registers
- * @param[in]:		the specific pin number to read
- *
- * @return: 		the input value(0 or 1) of the pin
+ * @return		the input value(0 or 1) of the pin
  */
 uint8_t GPIO_read_input_pin(GPIO_reg_t *p_GPIOx, uint8_t pin_num)
 {
 	//shift to the right instead of shifting 1 to the left and do & bc that would not create 0 or 1 as output
 	return (p_GPIOx->IDR >> pin_num) & 1;
 }
-/*
- * @func:			GPIO_read_input_port
+/**
+ * @brief		This function reads the input value of the given GPIO port
  *
- * @brief:			This function reads the input value of the given GPIO port
+ * @param		p_GPIOx base address of GPIO port registers
  *
- * @param[in]:		base address of GPIO port registers
- *
- * @return: 		the input value of the 16 pins of the port
+ * @return		the input value of the 16 pins of the port
  */
 uint16_t GPIO_read_input_port(GPIO_reg_t *p_GPIOx)
 {
 	return p_GPIOx->IDR;
 }
-/*
- * @func:			GPIO_write_output_pin
+/**
+ * @brief		This function writes the given value to the given GPIO pin
  *
- * @brief:			This function writes the given value to the given GPIO pin
- *
- * @param[in]:		base address of GPIO port registers
- * @param[in]:		pin number to write value to
- * @param[in]:		value to write to the pin
- *
- * @return: 		none
+ * @param		p_GPIOx base address of GPIO port registers
+ * @param		pin_num pin number to write value to
+ * @param		val value to write to the pin
  */
 void GPIO_write_output_pin(GPIO_reg_t *p_GPIOx, uint8_t pin_num, uint8_t val)
 {
@@ -276,44 +256,32 @@ void GPIO_write_output_pin(GPIO_reg_t *p_GPIOx, uint8_t pin_num, uint8_t val)
 		p_GPIOx->ODR &= ~(1 << pin_num);
 	}
 }
-/*
- * @func:			GPIO_write_output_port
+/**
+ * @brief		This function writes the given value to the given GPIO port
  *
- * @brief:			This function writes the given value to the given GPIO port
- *
- * @param[in]:		base address of GPIO port registers
- * @param[in]:		value to write to the port
- *
- * @return: 		none
+ * @param		p_GPIOx base address of GPIO port registers
+ * @param		val value to write to the port
  */
 void GPIO_write_output_port(GPIO_reg_t *p_GPIOx, uint16_t val)
 {
 	p_GPIOx->ODR = val;
 }
-/*
- * @func:			GPIO_toggle_output_pin
+/**
+ * @brief		This function toggles the given GPIO pin
  *
- * @brief:			This function toggles the given GPIO pin
- *
- * @param[in]:		base address of GPIO port registers
- * @param[in]:		pin number to toggle
- *
- * @return: 		none
+ * @param		p_GPIOx base address of GPIO port registers
+ * @param		pin_num pin number to toggle
  */
 void GPIO_toggle_output_pin(GPIO_reg_t *p_GPIOx, uint8_t pin_num)
 {
 	p_GPIOx->ODR ^= (1 << pin_num);
 }
 
-/*
- * @func:			GPIO_IRQ_config
+/**
+ * @brief		This function enable/disable interrupt for the given peripheral
  *
- * @brief:			This function enable/disable interrupt for the given peripheral
- *
- * @param[in]:		the IRQ number to enable/disable
- * @param[in]:		ENABLE or DISABLE the IRQ
- *
- * @return: 		none
+ * @param		IRQ_num the IRQ number to enable/disable
+ * @param		enable ENABLE or DISABLE the IRQ
  */
 void GPIO_IRQ_config(uint8_t IRQ_num, uint8_t enable)
 {
@@ -359,15 +327,11 @@ void GPIO_IRQ_config(uint8_t IRQ_num, uint8_t enable)
 
 }
 
-/*
- * @func:			GPIO_IRQ_config
+/**
+ * @brief		This function enable/disable the GPIO pin as given
  *
- * @brief:			This function enable/disable the GPIO pin as given
- *
- * @param[in]:		IRQ number of the peripheral to set priority
- * @param[in]:		priority value to set the IRQ to
- *
- * @return: 		none
+ * @param		IRQ_num IRQ number of the peripheral to set priority
+ * @param		IRQ_priority priority value to set the IRQ to
  */
 void GPIO_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority)
 {
@@ -380,16 +344,12 @@ void GPIO_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority)
 
 }
 
-/*
- * @func:			GPIO_IRQ_handler
+/**
+ * @brief		This function clears the pending interrupt of the given pin
  *
- * @brief:			This function clears the pending interrupt of the given pin
+ * @param		pin_num pin number to clear interrupt
  *
- * @param[in]:		pin number to clear interrupt
- *
- * @return: 		none
- *
- * @note:			call in the EXTI handlers to clear the pending bit
+ * @note		call in the EXTI handlers to clear the pending bit
  */
 void GPIO_IRQ_handler(uint8_t pin_num)
 {
