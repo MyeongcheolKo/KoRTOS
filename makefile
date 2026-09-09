@@ -19,7 +19,8 @@ HAL_SRCS = kortos_hal/STM32F446xx/GPIO.c \
 			kortos_hal/STM32F446xx/I2C.c \
 			kortos_hal/STM32F446xx/SPI.c \
 			kortos_hal/STM32F446xx/USART.c \
-			kortos_hal/STM32F446xx/rcc.c
+			kortos_hal/STM32F446xx/rcc.c \
+			kortos_hal/STM32F446xx/CAN.c
 APP_SRCS    = $(APP)
 BSP_SRCS    = bsp/STM32F446xx/startup.c \
               bsp/STM32F446xx/syscalls.c \
