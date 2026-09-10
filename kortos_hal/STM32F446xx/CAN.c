@@ -351,6 +351,13 @@ void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num)
 
 /*-----private helper functions-----*/
 
+/*
+@brief
+	Enables or disables the clock for the given CAN peripheral
+
+@param p_CANx Address of CAN peripheral
+@param enable ENABLE or DISABLE
+*/
 void CAN_clock_control(CAN_reg_t *p_CANx, uint8_t enable)
 {
     if(enable == ENABLE)
@@ -377,6 +384,22 @@ void CAN_clock_control(CAN_reg_t *p_CANx, uint8_t enable)
     }
 }
 
+/*
+@brief
+	Validates a frame, finds a free TX mailbox, loads it and requests transmission, then returns immediately. 
+    Does not wait for the transmission to complete. 
+
+@param can_handle Address of the CAN Handle structure
+@param frame Address of the frame to load
+@param out_mailbox Address to store which mailbox number was used
+
+@retval KHAL_OK - frame loaded and transmission requested
+@retval KHAL_ERR_NULL_PTR - can_handle, can_handle->CANx, frame, or out_mailbox is NULL
+@retval KHAL_ERR_INVALID_PARAM - a frame field is out of range
+@retval KHAL_ERR_BUSY - no mailbox is free
+
+@note shared by CAN_transmit() and CAN_transmit_IT()
+*/
 KHAL_status_t CAN_load_mailbox(CAN_handle_t *can_handle, CAN_frame_t *frame, uint8_t *out_mailbox)
 {
     // check for null pointer
@@ -441,6 +464,18 @@ KHAL_status_t CAN_load_mailbox(CAN_handle_t *can_handle, CAN_frame_t *frame, uin
     return KHAL_OK;
 }
 
+/*
+@brief
+	Reads and decodes a frame from the given FIFO, then releases it
+
+@param CANx Address of CAN peripheral
+@param fifo_num Which FIFO to read from
+@param frame Address to store the decoded frame
+
+@retval KHAL_OK - frame read into frame
+@retval KHAL_ERR_NULL_PTR - CANx or frame is NULL
+@retval KHAL_ERR_INVALID_PARAM - fifo_num is greater than 1
+*/
 KHAL_status_t CAN_read_rx_frame(CAN_reg_t *CANx, uint8_t fifo_num, CAN_frame_t *frame)
 {
     // check for null pointer and valid FIFO number

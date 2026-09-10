@@ -78,23 +78,127 @@ typedef struct
     uint32_t timestamp; // timestamp of the received message
 } CAN_frame_t;
 
+/*
+@brief
+	Configures the given CAN peripheral: enters init mode, exits sleep mode, configures
+	bit timing and mode, then leaves init mode
 
+@param can_handle Address of the CAN Handle structure
+
+@retval KHAL_OK - peripheral initialized
+@retval KHAL_ERR_NULL_PTR - can_handle or can_handle->CANx is NULL
+@retval KHAL_ERR_INVALID_PARAM - a config field is out of range, or mode is invalid
+@retval KHAL_ERR_TIMEOUT - entering/exiting init mode or exiting sleep mode timed out
+*/
 KHAL_status_t CAN_init(CAN_handle_t *can_handle);
 
+/*
+@brief
+	Configures the specified CAN filter bank
+
+@param filter_config Address of the filter configuration structure
+
+@retval KHAL_OK - filter bank configured
+@retval KHAL_ERR_NULL_PTR - filter_config is NULL
+@retval KHAL_ERR_INVALID_PARAM - bank_num, filter_mode, filter_scale, or fifo_assignment is out of range
+
+@note filter registers are only implemented on CAN1; this always configures through CAN1
+	regardless of which CAN peripheral the filter is meant to serve
+*/
 KHAL_status_t CAN_configure_filter(CAN_filter_config_t *filter_config);
 
+/*
+@brief
+	Enables or disables the given IRQ number in the NVIC
+
+@param IRQ_num The IRQ number to enable/disable
+@param enable ENABLE or DISABLE
+
+@retval KHAL_OK - IRQ enabled/disabled
+@retval KHAL_ERR_INVALID_PARAM - IRQ_num is greater than the highest IRQ number
+*/
 KHAL_status_t CAN_IRQ_control(uint8_t IRQ_num, uint8_t enable);
 
+/*
+@brief
+	Sets the priority for the given IRQ number
+
+@param IRQ_num IRQ number to set priority for
+@param priority Priority value to set the IRQ to
+
+@retval KHAL_OK - priority set
+@retval KHAL_ERR_INVALID_PARAM - IRQ_num is greater than the highest IRQ number
+*/
 KHAL_status_t CAN_IRQ_priority_config(uint8_t IRQ_num, uint8_t priority);
 
+/*
+@brief
+	Loads a frame into a free mailbox and blocks until transmission completes or times out
+
+@param can_handle Address of the CAN Handle structure
+@param frame Address of the frame to transmit
+
+@retval KHAL_OK - frame transmitted successfully
+@retval KHAL_ERR_NULL_PTR - can_handle, can_handle->CANx, or frame is NULL
+@retval KHAL_ERR_INVALID_PARAM - a frame field is out of range
+@retval KHAL_ERR_BUSY - no mailbox is free
+@retval KHAL_ERR_TIMEOUT - the loaded mailbox never emptied within the timeout
+@retval KHAL_ERR_TX - hardware reported the transmission failed
+*/
 KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame);
 
+/*
+@brief
+	Checks both RX FIFOs and reads a pending message if one is available
+
+@param can_handle Address of the CAN Handle structure
+@param frame Address to store the received frame
+
+@retval KHAL_OK - a message was read into frame
+@retval KHAL_ERR_NULL_PTR - can_handle, can_handle->CANx, or frame is NULL
+@retval KHAL_ERR_RX - no message pending in either FIFO
+
+@note This is non-blocking. It just checks and returns, since a CAN transmission from another
+	node can arrive at any time (or never), unlike I2C or SPI's master-initiated transfers.
+	FIFO0 is checked before FIFO1
+*/
 KHAL_status_t CAN_receive(CAN_handle_t *can_handle, CAN_frame_t *frame);
 
+/*
+@brief
+	Loads a frame into a free mailbox and returns immediately, actual transmission
+	completion is handled by the CAN TX interrupt
+
+@param can_handle Address of the CAN Handle structure
+@param frame Address of the frame to transmit
+
+@retval KHAL_OK - frame loaded and transmission requested
+@retval KHAL_ERR_NULL_PTR - can_handle, can_handle->CANx, or frame is NULL
+@retval KHAL_ERR_INVALID_PARAM - a frame field is out of range
+@retval KHAL_ERR_BUSY - no mailbox is free
+*/
 KHAL_status_t CAN_transmit_IT(CAN_handle_t *can_handle, CAN_frame_t *frame);
 
+/*
+@brief
+	Decodes a received frame from the given FIFO and invokes CAN_rx_callback
+
+@param can_handle Address of the CAN Handle structure
+@param fifo_num Which FIFO triggered the interrupt
+
+@note call this from the app's CAN1_RX0_IRQHandler/CAN1_RX1_IRQHandler with the matching fifo_num
+*/
 void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
 
+/*
+@brief
+	Weak default callback invoked by CAN_IRQHandler() after a received frame has been
+	decoded. Override this in app code to route the frame (e.g. push to a queue)
+
+@param can_handle Address of the CAN Handle structure
+@param frame Address of the decoded frame
+@param fifo_num Which FIFO the frame was received from
+*/
 __attribute__((weak)) void CAN_rx_callback(CAN_handle_t *can_handle, CAN_frame_t *frame, uint8_t fifo_num);
 
 #endif
