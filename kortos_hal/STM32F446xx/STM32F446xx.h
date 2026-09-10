@@ -12,17 +12,6 @@
 
 /*-----address macros-----*/
 
-// NVIC register addresses
-#define NVIC_ISER0 		(volatile uint32_t*)0xE000E100
-#define NVIC_ISER1 		(volatile uint32_t*)0xE000E104
-#define NVIC_ISER2 		(volatile uint32_t*)0xE000E108
-#define NVIC_ISER3 		(volatile uint32_t*)0xE000E10C
-#define NVIC_ICER0 		(volatile uint32_t*)0XE000E180
-#define NVIC_ICER1 		(volatile uint32_t*)0XE000E184
-#define NVIC_ICER2 		(volatile uint32_t*)0XE000E188
-#define NVIC_ICER3 		(volatile uint32_t*)0XE000E18C
-#define NVIC_IPR_BASEADDR 		(volatile uint32_t*)0xE000E400
-
 // base address of FLASH and SRAM
 #define FLASH_BASEADDR 	0x08000000U
 #define ROM_BASEADDR 	0x1FFF0000U
@@ -275,6 +264,24 @@ typedef struct
 
 #define CAN1 ((CAN_reg_t*)CAN1_BASEADDR)
 #define CAN2 ((CAN_reg_t*)CAN2_BASEADDR)
+
+// NVIC register structure
+typedef struct
+{
+	volatile uint32_t ISER[8];		// Interrupt set-enable registers
+	uint32_t RESERVED0[24];
+	volatile uint32_t ICER[8];		// Interrupt clear-enable registers
+	uint32_t RESERVED1[24];
+	volatile uint32_t ISPR[8];		// Interrupt set-pending registers
+	uint32_t RESERVED2[24];
+	volatile uint32_t ICPR[8];		// Interrupt clear-pending registers
+	uint32_t RESERVED3[24];
+	volatile uint32_t IABR[8];		// Interrupt active bit registers
+	uint32_t RESERVED4[56];
+	volatile uint8_t IPR[240];		// Interrupt priority registers, 60 registers, each 4 bytes, each byte is a priority field for an interrupt
+} NVIC_reg_t;
+
+#define NVIC ((NVIC_reg_t*)0xE000E100U)
 
 /*-----bit position macros-----*/
 
@@ -710,6 +717,16 @@ typedef struct
 #define IRQ_NO_UART4		52
 #define IRQ_NO_UART5		53
 #define IRQ_NO_USART6		71
+
+// IRQ numbers for CAN
+#define IRQ_NO_CAN1_TX		19
+#define IRQ_NO_CAN1_RX0		20
+#define IRQ_NO_CAN1_RX1		21
+#define IRQ_NO_CAN1_SCE		22
+#define IRQ_NO_CAN2_TX		72
+#define IRQ_NO_CAN2_RX0		73
+#define IRQ_NO_CAN2_RX1		74
+#define IRQ_NO_CAN2_SCE		75
 
 // IRQ numbers for CAN
 // @TODO: Add CAN IRQ numbers

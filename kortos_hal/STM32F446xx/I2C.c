@@ -391,50 +391,14 @@ uint8_t I2C_master_receive_IT(I2C_Handle_t *p_I2C_Handle, uint8_t *p_Rx_buffer, 
  */
 void I2C_IRQ_config(uint8_t IRQ_num, uint8_t enable)
 {
-	//enable the IRQ
 	if(enable == ENABLE)
 	{
-		if(IRQ_num < 32)
-		{
-			//enable ISER0
-			*NVIC_ISER0 |= (1 << IRQ_num);
-		}
-		else if(IRQ_num >= 32 && IRQ_num < 64)
-		{
-			//enable ISER1
-			*NVIC_ISER1 |= (1 << (IRQ_num % 32));
-		}
-		else if(IRQ_num >= 64 && IRQ_num < 96){
-			//enable ISER2
-			*NVIC_ISER2 |= (1 << (IRQ_num % 64));
-		}
-		else if (IRQ_num >= 96 && IRQ_num < 128)
-		{
-			//enable ISER3
-			*NVIC_ISER3 |= (1 << (IRQ_num % 96));
-		}
-	}else{ //disable the IRQ
-		if(IRQ_num < 32)
-		{
-			//enable ICER0
-			*NVIC_ICER0 |= (1 << IRQ_num);
-		}
-		else if(IRQ_num >= 32 && IRQ_num < 64)
-		{
-			//enable ICER1
-			*NVIC_ICER1 |= (1 << (IRQ_num % 32));
-		}
-		else if(IRQ_num >= 64 && IRQ_num < 96){
-			//enable ICER2
-			*NVIC_ICER2 |= (1 << (IRQ_num % 64));
-		}
-		else if (IRQ_num >= 96 && IRQ_num < 128)
-		{
-			//enable ICER3
-			*NVIC_ICER3 |= (1 << (IRQ_num % 96));
-		}
+		NVIC->ISER[IRQ_num / 32] |= (1 << (IRQ_num % 32));
 	}
-
+	else
+	{
+		NVIC->ICER[IRQ_num / 32] |= (1 << (IRQ_num % 32));
+	}
 }
 
 /**
@@ -445,12 +409,7 @@ void I2C_IRQ_config(uint8_t IRQ_num, uint8_t enable)
  */
 void I2C_set_priority(uint8_t IRQ_num, uint8_t IRQ_priority)
 {
-	//set priority
-	uint8_t iprx = IRQ_num / 4;						//which IRQ register, each IPR register only contain 4 interrupts (1 byte apart)
-	uint8_t iprx_section = IRQ_num % 4;				//which interrupt(byte) within the IPR register
-	uint8_t shift_amount = (8 * iprx_section) + 4; 	//add 4 because the upper 4 bits are the preemptive priority and the lower 4 are the subpriority
-
-	*(NVIC_IPR_BASEADDR + iprx) |= (IRQ_priority << shift_amount); //NVIC_IPR_BASEADDR is uin32_t pointer so adding the iprx will be 4 bytes apart
+	NVIC->IPR[IRQ_num] = (IRQ_priority << 4); //shift left by 4 because the lower 4 bits are unimplemented in the STM32F446xx
 }
 
 /**
