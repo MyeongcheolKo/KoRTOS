@@ -349,7 +349,7 @@ KHAL_status_t CAN_transmit_IT(CAN_handle_t *can_handle, CAN_frame_t *frame)
     return CAN_load_mailbox(can_handle, frame, &mailbox); 
 }
 
-void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num)
+void CAN_RX_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num)
 {
     // check for null pointer
     if (can_handle == NULL || can_handle->CANx == NULL) return;

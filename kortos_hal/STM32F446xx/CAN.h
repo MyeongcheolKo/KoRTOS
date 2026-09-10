@@ -188,7 +188,7 @@ KHAL_status_t CAN_transmit_IT(CAN_handle_t *can_handle, CAN_frame_t *frame);
 
 @note call this from the app's CAN1_RX0_IRQHandler/CAN1_RX1_IRQHandler with the matching fifo_num
 */
-void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
+void CAN_RX_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
 
 /*
 @brief
