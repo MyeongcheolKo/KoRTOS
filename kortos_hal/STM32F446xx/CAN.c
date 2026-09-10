@@ -250,7 +250,10 @@ KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame)
     
     CAN_reg_t *CANx = can_handle->CANx;
 
-    // wait for mailbox 0 to be empty, which means the message has been transmitted
+    // wait for mailbox to be empty, which means the message has been transmitted
+    // Then check if the tranmission was successful, then clear RQCPx (write 1 to clear) 
+    // so a stale completed flag from this polling call can't falsely fire CAN_TX_IRQHandler
+    // later if the app also enables the TX interrupt for other transmits
     uint32_t timeout = CAN_INIT_TIMEOUT;
     switch (mailbox)
     {
@@ -263,11 +266,12 @@ KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame)
             {
                 return KHAL_ERR_TIMEOUT;
             }
-            // check if the tranmission was successful
             if (!(CANx->TSR & CAN_TSR_TXOK0_MSK))
             {
+                CANx->TSR |= CAN_TSR_RQCP0_MSK;
                 return KHAL_ERR_TX;
             }
+            CANx->TSR |= CAN_TSR_RQCP0_MSK;
             break;
         case 1:
             while (!(CANx->TSR & CAN_TSR_TME1_MSK) && timeout > 0)
@@ -278,11 +282,12 @@ KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame)
             {
                 return KHAL_ERR_TIMEOUT;
             }
-            // check if the tranmission was successful
             if (!(CANx->TSR & CAN_TSR_TXOK1_MSK))
             {
+                CANx->TSR |= CAN_TSR_RQCP1_MSK;
                 return KHAL_ERR_TX;
             }
+            CANx->TSR |= CAN_TSR_RQCP1_MSK;
             break;
         case 2:
             while (!(CANx->TSR & CAN_TSR_TME2_MSK) && timeout > 0)
@@ -293,11 +298,12 @@ KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame)
             {
                 return KHAL_ERR_TIMEOUT;
             }
-            // check if the tranmission was successful
             if (!(CANx->TSR & CAN_TSR_TXOK2_MSK))
             {
+                CANx->TSR |= CAN_TSR_RQCP2_MSK;
                 return KHAL_ERR_TX;
             }
+            CANx->TSR |= CAN_TSR_RQCP2_MSK;
             break;
         default:
             return KHAL_ERR_TX; 
