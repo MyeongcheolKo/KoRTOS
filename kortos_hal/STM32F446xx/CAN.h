@@ -83,8 +83,18 @@ KHAL_status_t CAN_init(CAN_handle_t *can_handle);
 
 KHAL_status_t CAN_configure_filter(CAN_filter_config_t *filter_config);
 
+KHAL_status_t CAN_IRQ_control(uint8_t IRQ_num, uint8_t enable);
+
+KHAL_status_t CAN_IRQ_priority_config(uint8_t IRQ_num, uint8_t priority);
+
 KHAL_status_t CAN_transmit(CAN_handle_t *can_handle, CAN_frame_t *frame);
 
 KHAL_status_t CAN_receive(CAN_handle_t *can_handle, CAN_frame_t *frame);
+
+KHAL_status_t CAN_transmit_IT(CAN_handle_t *can_handle, CAN_frame_t *frame);
+
+void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
+
+__attribute__((weak)) void CAN_rx_callback(CAN_handle_t *can_handle, CAN_frame_t *frame, uint8_t fifo_num);
 
 #endif
