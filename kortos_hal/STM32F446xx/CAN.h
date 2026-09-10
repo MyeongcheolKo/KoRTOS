@@ -186,7 +186,7 @@ KHAL_status_t CAN_transmit_IT(CAN_handle_t *can_handle, CAN_frame_t *frame);
 @param can_handle Address of the CAN Handle structure
 @param fifo_num Which FIFO triggered the interrupt
 
-@note call this from the app's CAN1_RX0_IRQHandler/CAN1_RX1_IRQHandler with the matching fifo_num
+@note call this from the app's CANx_RX0_IRQHandler/CANx_RX1_IRQHandler with the matching fifo_num
 */
 void CAN_RX_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
 
@@ -208,7 +208,7 @@ __attribute__((weak)) void CAN_rx_callback(CAN_handle_t *can_handle, CAN_frame_t
 
 @param can_handle Address of the CAN Handle structure
 
-@note call this from the app's CAN1_TX_IRQHandler; unlike RX, all 3 mailboxes share a single
+@note call this from the app's CANx_TX_IRQHandler. Unlike RX, all 3 mailboxes share a single
 	TX interrupt line, so this checks RQCP0/1/2 rather than being told which mailbox fired
 */
 void CAN_TX_IRQHandler(CAN_handle_t *can_handle);
