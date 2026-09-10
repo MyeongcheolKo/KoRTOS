@@ -201,4 +201,27 @@ void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num);
 */
 __attribute__((weak)) void CAN_rx_callback(CAN_handle_t *can_handle, CAN_frame_t *frame, uint8_t fifo_num);
 
+/*
+@brief
+	Checks all 3 TX mailboxes for completed requests, clears each completed flag, and
+	invokes CAN_tx_callback once per mailbox that completed
+
+@param can_handle Address of the CAN Handle structure
+
+@note call this from the app's CAN1_TX_IRQHandler; unlike RX, all 3 mailboxes share a single
+	TX interrupt line, so this checks RQCP0/1/2 rather than being told which mailbox fired
+*/
+void CAN_TX_IRQHandler(CAN_handle_t *can_handle);
+
+/*
+@brief
+	Weak default callback invoked by CAN_TX_IRQHandler() once per mailbox whose transmit
+	request completed. Override this in app code to react to transmission results
+
+@param can_handle Address of the CAN Handle structure
+@param mailbox Which mailbox (0, 1, or 2) completed
+@param success Non-zero if the transmission succeeded, 0 if it failed
+*/
+__attribute__((weak)) void CAN_tx_callback(CAN_handle_t *can_handle, uint8_t mailbox, uint8_t success);
+
 #endif

@@ -18,6 +18,8 @@ KHAL_status_t CAN_read_rx_frame(CAN_reg_t *CANx, uint8_t fifo_num, CAN_frame_t *
 
 __attribute__((weak)) void CAN_rx_callback(CAN_handle_t *can_handle, CAN_frame_t *frame, uint8_t fifo_num) { /* default: no-op */ }
 
+__attribute__((weak)) void CAN_tx_callback(CAN_handle_t *can_handle, uint8_t mailbox, uint8_t success) { /* default: no-op */ }
+
 KHAL_status_t CAN_init(CAN_handle_t *can_handle)
 {
     // check for null pointer
@@ -118,6 +120,11 @@ KHAL_status_t CAN_init(CAN_handle_t *can_handle)
         CANx->MCR &= ~CAN_MCR_TTCM_MSK;
     }
     
+    // enable the TX-mailbox-empty and RX-FIFO-message-pending interrupts, harmless for
+    // polling since the NVIC line still has to be enabled separately via CAN_IRQ_control()
+    // before any of these can actually fire
+    CANx->IER |= CAN_IER_TMEIE_MSK | CAN_IER_FMPIE0_MSK | CAN_IER_FMPIE1_MSK;
+
     // leave init mode
     CANx->MCR &= ~CAN_MCR_INRQ_MSK;
 
@@ -347,6 +354,36 @@ void CAN_IRQHandler(CAN_handle_t *can_handle, uint8_t fifo_num)
 
     // call the user defined callback function
     CAN_rx_callback(can_handle, &frame, fifo_num);
+}
+
+void CAN_TX_IRQHandler(CAN_handle_t *can_handle)
+{
+    // check for null pointer
+    if (can_handle == NULL || can_handle->CANx == NULL) return;
+
+    CAN_reg_t *CANx = can_handle->CANx;
+
+    // all 3 mailboxes share this one interrupt line, so check each mailbox's request-completed
+    // flag individually instead of being told which one fired. Then check if the transmission 
+    // was successful and call the user-defined callback function
+    if (CANx->TSR & CAN_TSR_RQCP0_MSK)
+    {
+        uint8_t success = (CANx->TSR & CAN_TSR_TXOK0_MSK) != 0;
+        CANx->TSR |= CAN_TSR_RQCP0_MSK; // clear by writing 1
+        CAN_tx_callback(can_handle, 0, success);
+    }
+    if (CANx->TSR & CAN_TSR_RQCP1_MSK)
+    {
+        uint8_t success = (CANx->TSR & CAN_TSR_TXOK1_MSK) != 0;
+        CANx->TSR |= CAN_TSR_RQCP1_MSK;
+        CAN_tx_callback(can_handle, 1, success);
+    }
+    if (CANx->TSR & CAN_TSR_RQCP2_MSK)
+    {
+        uint8_t success = (CANx->TSR & CAN_TSR_TXOK2_MSK) != 0;
+        CANx->TSR |= CAN_TSR_RQCP2_MSK;
+        CAN_tx_callback(can_handle, 2, success);
+    }
 }
 
 /*-----private helper functions-----*/
