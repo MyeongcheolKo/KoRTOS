@@ -4,7 +4,7 @@ Worst-case blocking time of a high-priority task on `os_mutex_lock()` while a
 lower-priority task holds the mutex and a medium-priority task runs unrelated CPU
 work, with and without priority inheritance.
 
-Benchmark: [`sample_apps/kernel/mutex_pi_benchmark.c`](sample_apps/kernel/mutex_pi_benchmark.c)
+Benchmark: [`sample_apps/kernel/mutex_pi_benchmark.c`](../sample_apps/kernel/mutex_pi_benchmark.c)
 
 ## Setup
 
@@ -16,6 +16,10 @@ Benchmark: [`sample_apps/kernel/mutex_pi_benchmark.c`](sample_apps/kernel/mutex_
 | M workload | 1 ms / 5 ms / 20 ms, swept |
 | Runs per point | 100 |
 | Timing | DWT `CYCCNT`, read immediately before and after H's `os_mutex_lock()` |
+
+Inheritance was disabled for the "without" column by commenting out the
+`mutex_donate_priority()` call in `os_mutex_lock()` (`kernel/kernel.c`), rebuilding, and
+restoring it afterwards.
 
 Each run constructs the classic unbounded-inversion interleaving explicitly: L
 locks the mutex and signals H; H releases M and then contends for the mutex with
@@ -35,8 +39,7 @@ Blocking time of H on `os_mutex_lock()`, worst / median over 100 runs:
 
 Without inheritance, blocking is exactly `M workload + 295 µs` at every point: H
 waits out M's entire burst, then L's 100 µs critical section, plus ~195 µs of kernel
-overhead. Blocking scales with whatever
-unrelated work happens to be runnable.
+overhead. Blocking scales with whatever unrelated work happens to be runnable.
 
 With inheritance, blocking is flat at 257 µs regardless of M: L's 100 µs critical
 section plus ~157 µs of kernel overhead. The bound is the critical-section length,
