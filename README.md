@@ -1,6 +1,6 @@
 # KoRTOS
 
-KoRTOS is a mini RTOS kernel and peripheral driver library for ARM Cortex-M4, written from scratch without a vendor HAL or CMSIS. The kernel core is portable C with all architecture-specific code behind a port layer; the kernel itself has no assembly and no register access. The repo also includes the bare-metal pieces (linker script, startup code, syscalls) needed to run on the STM32F446RE, the board that it has been developed and tested on.
+KoRTOS is a mini RTOS for ARM Cortex-M4, written from scratch without a vendor HAL or CMSIS: a preemptive kernel, a peripheral driver library, and the linker script, startup code, and syscalls needed to boot bare metal.
 
 ## Highlights
 
@@ -8,11 +8,13 @@ KoRTOS is a mini RTOS kernel and peripheral driver library for ARM Cortex-M4, wr
 - **Semaphores, mutexes, and message queues**. Every blocking call takes a timeout (`0`, `n` ticks, or `OS_WAIT_FOREVER`), and each wait list releases in `FIFO` or `PRIORITY` order
 - **Priority inheritance** on mutexes, including propagation through chains of held mutexes and is recomputed on release when a task holds several mutexes
 - **ISR-safe queue** with recheck on wake. A blocked sender or receiver isn't necessarily guaranteed the next task to run once a slot frees, a higher priority task or an ISR may take it first. The woken task rechecks the queue instead of assuming the slot is still free. 
-- **Portable core with swappable port**. `kernel/` is pure C, `port/arm/cortex_m4/` holds all the assembly and registers. The two build as independent static libraries alongside the HAL
+- **Portable kernel core with swappable arch port**. `kernel/` is pure C, `port/arm/cortex_m4/` holds all the archetecture specific assembly and registers access. The two build as independent static libraries alongside the HAL
 - **Register-level HAL** for GPIO, SPI, I2C, USART, and CAN, with polling and interrupt-driven modes and weak callbacks
-- Hand-written linker script and startup code, `printf` over ITM, plain `make` build
 - **Bare-metal from the vector table up**: linker script, startup code, `make` build
 - **24 sample apps**, one per feature, each with the expected output in its header comment
+
+The reasoning behind these (why PendSV instead of switching in SysTick, why inheritance recomputes from scratch on release, etc) is in [docs/kernel.md -> Design choices](docs/kernel.md#design-choices).
+
 
 ## Priority inheritance benchmark
 
@@ -67,7 +69,7 @@ Build and flash (needs `arm-none-eabi-gcc` and OpenOCD):
 
 ```
 make APP=sample_apps/kernel/mutex_priority_donate.c   # any file under sample_apps/
-make load                                             # starts OpenOCD; flash with arm-none-eabi-gdb
+make load                                             # starts OpenOCD, flash with arm-none-eabi-gdb
 ```
 
 Output goes to the SWV ITM console. Each sample app's header comment describes what the output should look like.
@@ -82,7 +84,7 @@ uint32_t producer_stack[1024] __attribute__((aligned(8)));
 uint32_t consumer_stack[1024] __attribute__((aligned(8)));
 
 queue_t  q;
-uint32_t q_buf[8];               // the app owns the queue's storage
+uint32_t q_buf[8]; // the app owns the queue's storage
 
 void producer(void)
 {
@@ -91,7 +93,7 @@ void producer(void)
     {
         os_queue_send_from_task(&q, &n, OS_WAIT_FOREVER);
         n++;
-        os_task_delay(100);      // blocks 100 ticks; other tasks run
+        os_task_delay(100); // blocks 100 ticks, other tasks run
     }
 }
 
@@ -105,10 +107,10 @@ void consumer(void)
 
 int main(void)
 {
-    os_task_create(producer, 1, producer_stack, sizeof(producer_stack));  // lower number = higher priority
+    os_task_create(producer, 1, producer_stack, sizeof(producer_stack)); // lower number = higher priority
     os_task_create(consumer, 2, consumer_stack, sizeof(consumer_stack));
     os_queue_create(&q, q_buf, sizeof(uint32_t), 8, FIFO);
-    os_kernel_start();           // never returns
+    os_kernel_start(); // never returns
 }
 ```
 
